@@ -1,9 +1,15 @@
-
+import Hello from "./rachit"
 function App() {
+  const username="Ohh Yesss Yess";
   
   
   return (
-    <h1>Hello world</h1>
+    
+    <>
+    <Hello/>
+    <p>THis world is fucked up bro {username}</p>
+    <button>Dont funck with me</button>
+    </>
   );
 }
 
