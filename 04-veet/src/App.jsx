@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
 function App() {
-  const [color, setColor] = useState("bg-green-400"); // Tailwind class
+  const [color, setColor] = useState("bg-green-400");
 
   const colors = [
     { name: "Red", class: "bg-red-400", text: "text-white" },
