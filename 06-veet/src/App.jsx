@@ -1,24 +1,33 @@
-import React, { useState } from 'react'
-import {InputBox,useCurrencyinfo} from './customhooks'
+import React, { useState } from 'react';
+import { InputBox, useCurrencyinfo } from './customhooks';
 
 function App() {
   const [fromcurr, setFromcurr] = useState("USD");
-  const [tocurr, setTocurr] = useState("NPR");
+  const [tocurr, setTocurr] = useState("EUR");
   const [amount, setAmount] = useState(1);
   const [result, setResult] = useState("");
-  const { rates, loading, error } = useCurrencyinfo();
-  const options = Object.keys(rates || {});
+  const { rates, base, loading, error } = useCurrencyinfo();
+
+  // include base in options so it appears in dropdown
+  const options = base ? [base, ...Object.keys(rates)] : Object.keys(rates);
 
   const swap = () => {
+    const tempCurrency = fromcurr;
+    const tempAmount = result !== "" ? Number(result) : amount;
+
     setFromcurr(tocurr);
-    setTocurr(fromcurr);
-    setAmount(result !== "" ? Number(result) : amount);
+    setTocurr(tempCurrency);
+    setAmount(tempAmount);
     setResult("");
   }
 
-  function convert() {
-    if (!rates[tocurr] || !rates[fromcurr]) return;
-    const output = (Number(amount) * rates[tocurr]) / rates[fromcurr];
+  const convert = () => {
+    if ((fromcurr !== base && !rates[fromcurr]) || (tocurr !== base && !rates[tocurr])) return;
+
+    const fromRate = fromcurr === base ? 1 : rates[fromcurr];
+    const toRate   = tocurr   === base ? 1 : rates[tocurr];
+
+    const output = (Number(amount) / fromRate) * toRate;
     setResult(Number(output.toFixed(2)));
   }
 
@@ -29,17 +38,12 @@ function App() {
     <div
       className="w-full h-screen flex flex-wrap justify-center items-center bg-cover bg-no-repeat"
       style={{
-        backgroundImage: `url('https://imgs.search.brave.com/gp_LdVbNL4ODoLIJbijaeD7xqR3VXlLc-wt_EUFlDKY/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9tZWRp/YS5pc3RvY2twaG90/by5jb20vaWQvMTEz/MjY2MDI2OC9waG90/by9zdG9jay1tYXJr/ZXQtaW52ZXN0bWVu/dC1ncmFwaC13aXRo/LWluZGljYXRvci1h/bmQtdm9sdW1lLWRh/dGEuanBnP3M9NjEy/eDYxMiZ3PTAmaz0y/MCZjPTg3QzI2Rmtl/cG1Sd0VTZWVXYTRw/aFV2N1BBcEVrX05Y/TzhqMm1fNDRZd1E9')`,
+        backgroundImage: `url('https://images.pexels.com/photos/3532540/pexels-photo-3532540.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2')`,
       }}
     >
       <div className="w-full">
         <div className="w-full max-w-md mx-auto border border-gray-60 rounded-lg p-5 backdrop-blur-sm bg-white/30">
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              convert();
-            }}
-          >
+          <form onSubmit={(e) => { e.preventDefault(); convert(); }}>
             <div className="w-full mb-1">
               <InputBox
                 label="From"
@@ -50,6 +54,7 @@ function App() {
                 onChange={(e) => setAmount(e.target.value)}
               />
             </div>
+
             <div className="relative w-full h-0.5">
               <button
                 type="button"
@@ -59,6 +64,7 @@ function App() {
                 swap
               </button>
             </div>
+
             <div className="w-full mt-1 mb-4">
               <InputBox
                 label="To"
@@ -66,11 +72,15 @@ function App() {
                 options={options}
                 currency={tocurr}
                 setCurrency={setTocurr}
-                onChange={() => { }}
+                onChange={() => {}}
                 disable={true}
               />
             </div>
-            <button type="submit" className="w-full bg-blue-600 text-white px-4 py-3 rounded-lg">
+
+            <button
+              type="submit"
+              className="w-full bg-blue-600 text-white px-4 py-3 rounded-lg"
+            >
               Convert {fromcurr.toUpperCase()} to {tocurr.toUpperCase()}
             </button>
           </form>
@@ -80,4 +90,4 @@ function App() {
   );
 }
 
-export default App
+export default App;
